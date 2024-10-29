@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <string>
+
 
 // Класс для решения одномерного уравнения теплопроводности методом прогонки
 class HeatConduction1D {
@@ -34,7 +36,7 @@ public:
     }
 
     // Метод для выполнения численного решения уравнения теплопроводности
-    void solve() {  
+    void solve() {
         double time = 0.0;
         while (time < t_end) {
             time += tau;
@@ -64,25 +66,23 @@ public:
         }
     }
 
-    // Метод для записи результатов в файл
-    void saveResults(const std::string &filename) const {
+    // Функция для сохранения результатов в CSV-файл
+    void saveResultsToCSV(const std::string& filename) const {
         std::ofstream file(filename);
         if (file.is_open()) {
-            file << "Распределение температуры на момент времени t = " << t_end << " секунд:\n";
+            file << "x,temperature\n";  // Заголовок
             for (int i = 0; i < N; ++i) {
-                file << "x = " << i * h << ", T = " << T[i] << " C\n";
+                file << i * h << "," << T[i] << "\n";
             }
             file.close();
             std::cout << "Результаты сохранены в файл " << filename << std::endl;
-        } else {
-            std::cerr << "Ошибка открытия файла для записи!" << std::endl;
         }
     }
+
 };
 
 // Основная функция
 int main() {
-    // Ввод параметров задачи
     int N;
     double L, lambda, rho, c, T0, Tl, Tr, t_end;
 
@@ -105,12 +105,11 @@ int main() {
     std::cout << "Введите температуру на правом краю, Tr (С): ";
     std::cin >> Tr;
 
-    // Создаем объект и запускаем решение
+    // Создаем объект и выполняем расчет
     HeatConduction1D heatConduction(N, L, lambda, rho, c, T0, Tl, Tr, t_end);
     heatConduction.solve();
 
-    // Сохраняем результаты
-    heatConduction.saveResults("temperature_results.txt");
-
+    // Сохраняем результаты в CSV
+    heatConduction.saveResultsToCSV("results.csv");
     return 0;
 }
